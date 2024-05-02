@@ -1,14 +1,14 @@
 import csv
 import os
-from datetime import datetime
 import playsound
+from datetime import datetime
+from app.dao.taskDAO import TaskDAO
 
 
 class AgendAi:
-
     def __init__(self):
+        self.dao = TaskDAO()
         self.tasks = []
-        self.reTasks = set()
 
     def set_task(self, name, description, dateTime, dalyAlarm=False):
         if dateTime is None and dalyAlarm is None:
@@ -23,38 +23,15 @@ class AgendAi:
             'DalyAlarm': True if dalyAlarm else False
         })
 
-    def save_task(self, filename, mode=None):
-        file_exist = os.path.isfile(filename)
 
-        if mode is None:
-            mode = 'a' if file_exist else 'w'
-
-        with open(filename, mode, newline='') as file:
-            write = csv.DictWriter(file, fieldnames=['Name', 'Description', 'DateTime', 'DalyAlarm'])
-            if not file_exist or mode == 'w':
-                write.writeheader()
-
-            for task in self.tasks:
-                write.writerow(task)
-        self.tasks = []
-
-    def load_task(self, filename):
-        self.tasks = []
-        with open(filename, 'r', newline='') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                task = {
-                    'Name': row['Name'],
-                    'Description': row['Description'],
-                    'DateTime': datetime.datetime.strptime(row['DateTime'], "%Y-%m-%d %H:%M:%S"),
-                    'DalyAlarm': row['DalyAlarm']
-                }
-                self.tasks.append(task)
+    def loading(self):
+        for task in self.dao.tasks_dao:
+            self.tasks.append(task)
 
     def verification_task(self):
         if not self.tasks:
-            self.load_task('../data/savetask.csv')
-        currentDateTime = datetime.datetime.now().replace(microsecond=0)
+            self.dao.load_task()
+        currentDateTime = datetime.now().replace(microsecond=0)
         print(currentDateTime)
         for task in self.tasks:
             if task['DateTime'] == currentDateTime:
@@ -80,8 +57,4 @@ class AgendAi:
 
 
 if __name__ == '__main__':
-    taskManage = AgendAi()
-
-    taskManage.sound_alert()
-#    while True:
-#        taskManage.alarm_shot()
+    pass

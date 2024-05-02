@@ -32,6 +32,7 @@ while True:
     elif choise == '4':
         taskManage.delete_task()
     elif choise == '5':
-        taskManage.alarm_shot()
+        while True:
+            taskManage.alarm_shot()
     elif choise == '0':
         break
