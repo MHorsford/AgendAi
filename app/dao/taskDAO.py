@@ -12,19 +12,19 @@ class TaskDAO:
 
     def create_table(self):
         try:
-            if os.path.exists('../data/Tasks.db'):
-                self.cursor.execute('CREATE TABLE IF NOT EXISTS Tasks('
-                                    'ID INTEGER PRIMARY KEY AUTOINCREMENT,'
-                                    'Name TEXT,'
-                                    'Description TEXT,'
-                                    'DateTime TEXT,'
-                                    'DalyAlarm NUMERIC)')
-            else:
+            if not os.path.exists('../data/Tasks.db'):
                 with open('../data/Tasks.db', 'w') as file:
                     pass
-
+            self.cursor.execute('CREATE TABLE IF NOT EXISTS Tasks('
+                                'ID INTEGER PRIMARY KEY AUTOINCREMENT,'
+                                'Name TEXT,'
+                                'Description TEXT,'
+                                'DateTime TEXT,'
+                                'DalyAlarm NUMERIC)')
         except sqlite3.Error as e:
-            print(f'Não foi possivel criar a base de dados: {e}')
+            print(f'Não foi possivel criar a base de dados: {e}!!!')
+        finally:
+            pass
 
     def load_task(self):
         try:
@@ -43,14 +43,22 @@ class TaskDAO:
                 }
                 self.tasks_dao.append(task)
         except sqlite3.Error as e:
-            print('Não foi possivel carregar a base de dados: {e}')
+            print(f'Não foi possivel carregar a base de dados: {e}')
         finally:
             pass
 
-    def set_task(self, name, description, dateTime, dalyAlarm='False'):
-        self.cursor.execute('INSERT INTO Tasks (Name, Description, DateTime, DalyAlarm) VALUES (?, ?, ?, ?)',
-                            (name, description, dateTime, dalyAlarm))
-        self.connect.commit()
+    def set_task(self, name, description, dateTime, dalyAlarm=False):
+        try:
+            if not self.connect:
+                self.connect = sqlite3.connect('../data/Tasks.db')
+                self.cursor = self.connect.cursor()
+            self.cursor.execute('INSERT INTO Tasks (Name, Description, DateTime, DalyAlarm) VALUES (?, ?, ?, ?)',
+                                (name, description, dateTime, dalyAlarm))
+            self.connect.commit()
+        except sqlite3.Error as e:
+            print(f'Erro ao inserir a tarefa: {e}!!!')
+        finally:
+            pass
 
     def modify_task(self, ID, **kwarg):
         if not self.tasks_dao:
@@ -67,7 +75,7 @@ class TaskDAO:
             self.cursor.execute(sql, values)
             self.connect.commit()
         except sqlite3.Error as e:
-            print(f'Ocorreu um erro ao modificar a tarefa: {e}')
+            print(f'Ocorreu um erro ao modificar a tarefa: {e}!!!')
         finally:
             pass
 
@@ -83,7 +91,7 @@ class TaskDAO:
             self.connect.commit()
 
         except sqlite3.Error as e:
-            print(f'Erro ao excluir a tarefa: {e}')
+            print(f'Erro ao excluir a tarefa: {e}!!!')
         finally:
             pass
 
@@ -109,7 +117,7 @@ class TaskDAO:
                 temp_list.append(task)
             return temp_list
         except sqlite3.Error as e:
-            pass
+            print(f'Erro ao buscar as tarefas: {e}!!!')
         finally:
             pass
 

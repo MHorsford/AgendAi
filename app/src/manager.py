@@ -7,18 +7,21 @@ class Manager:
         self.dao = TaskDAO()
 
     def add_task(self):
-        name = str(input("Nome da tarefa: "))
-        description = str(input("Descrição: "))
-        dalyAlarmChoise = str(input("Alarme diário(s,n): ")).lower()
-        if dalyAlarmChoise == 's':
-            time = str(input('Hora(H:M:S): '))
-            dateTime = datetime.datetime.strptime(time, "%H:%M:%S")
-            self.dao.set_task(name, description, dateTime, dalyAlarm='True')
-        else:
-            date = str(input(f'Insira a data(Y-M-D): '))
-            time = str(input(f'Insira a data(H:M:S): '))
-            dateTime = datetime.datetime.strptime(date + " " + time, "%Y-%m-%d %H:%M:%S")
-            self.dao.set_task(name, description, dateTime, dalyAlarm='False')
+        try:
+            name = str(input("Nome da tarefa: "))
+            description = str(input("Descrição: "))
+            dalyAlarmChoise = str(input("Alarme diário(s,n): ")).lower()
+            if dalyAlarmChoise == 's':
+                time = str(input('Hora(H:M:S): '))
+                dateTime = datetime.datetime.strptime(time, "%H:%M:%S")
+                self.dao.set_task(name, description, dateTime, dalyAlarm=True)
+            else:
+                date = str(input(f'Insira a data(Y-M-D): '))
+                time = str(input(f'Insira a data(H:M:S): '))
+                dateTime = datetime.datetime.strptime(date + " " + time, "%Y-%m-%d %H:%M:%S")
+                self.dao.set_task(name, description, dateTime, dalyAlarm=False)
+        except ValueError:
+            pass
 
     def verify(self):
         pass
@@ -58,7 +61,6 @@ class Manager:
                                                                     else True
                         else:
                             break
-
                     self.dao.modify_task(choice_id, **to_update)
                     break
                 else:
@@ -81,6 +83,4 @@ class Manager:
 
 
 if __name__ == '__main__':
-    a = Manager()
-    a.modify_task()
     pass
