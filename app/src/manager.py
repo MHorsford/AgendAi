@@ -40,7 +40,7 @@ class Manager:
                             to_update['Name'] = str(input('Novo Nome: '))
                         elif choise_modify == 2:
                             to_update['Description'] = str(input('Nova Descrição: '))
-                        elif choise_modify == 3 and to_update['DalyAlarm'] == 'True':
+                        elif choise_modify == 3 and self.dao.get_task()[choice_id - 1]['DalyAlarm']:
                             new_time = str(input('Novo Horario(H:M:S): '))
                             to_update['DateTime'] = datetime.datetime.strptime(new_time, "%H:%M:%S")
                         elif choise_modify == 3:
@@ -49,19 +49,20 @@ class Manager:
                             to_update['DateTime'] = datetime.datetime.strptime(new_date + " " + new_time,
                                                                                "%Y-%m-%d %H:%M:%S")
                         elif choise_modify == 4:
-                            if to_update['DalyAlarm'] == 'True':
-                                mode = 'o modo "modo agendado"?' if to_update['DalyAlarm'] else 'o modo para "modo diario"?'
-                            choise_dalyAlarm = str(input(f'Deseja alterar o alarme para {mode} (s,N): ')).lower()
-                            if choise_dalyAlarm == 's':
-                                if to_update['DalyAlarm'] == 'True':
-                                    to_update['DalyAlarm'] = 'False'
-                                else:
-                                    to_update['DalyAlarm'] = 'True'
+                            mode = 'o modo "modo agendado"?' if (self.dao.get_task()[choice_id - 1]['DalyAlarm'])\
+                                                                else 'o modo "diário"?'
+                            print(mode)
+                            choice_alarm = str(input(f'Deseja alterar para {mode} (s/n): ')).lower()
+                            if choice_alarm == 's':
+                                to_update['DalyAlarm'] = False if (self.dao.get_task()[choice_id - 1]['DalyAlarm'])\
+                                                                    else True
                         else:
                             break
+
                     self.dao.modify_task(choice_id, **to_update)
+                    break
                 else:
-                    print('ID não encontrado!!!')
+                    continue
         except ValueError:
             pass
 
@@ -83,4 +84,3 @@ if __name__ == '__main__':
     a = Manager()
     a.modify_task()
     pass
-

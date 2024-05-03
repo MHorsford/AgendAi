@@ -18,7 +18,7 @@ class TaskDAO:
                                     'Name TEXT,'
                                     'Description TEXT,'
                                     'DateTime TEXT,'
-                                    'DalyAlarm TEXT)')
+                                    'DalyAlarm NUMERIC)')
             else:
                 with open('../data/Tasks.db', 'w') as file:
                     pass
@@ -102,6 +102,9 @@ class TaskDAO:
                 task = {
                     'ID': row[0],
                     'Name': row[1],
+                    'Description': row[2],
+                    'DateTime': row[3],
+                    'DalyAlarm': row[4]
                 }
                 temp_list.append(task)
             return temp_list
