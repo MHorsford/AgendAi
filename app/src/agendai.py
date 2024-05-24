@@ -47,7 +47,4 @@ class AgendAi:
 
 
 if __name__ == '__main__':
-    ag = AgendAi()
-    while True:
-        ag.alarm_shot()
     pass
