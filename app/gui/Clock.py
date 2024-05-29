@@ -10,6 +10,7 @@ class Clock(ft.Text):
         self.font_family = kwargs.get('font_family', None)
         self.color = '#FFD43B'
         self.size = 40
+        self.text_align = ft.TextAlign.CENTER
 
     def did_mount(self):
         self.running = True
@@ -20,7 +21,7 @@ class Clock(ft.Text):
 
     async def update_time(self):
         while self.running:
-            now = time.strftime('%H:%M:%S | %d/%m/%Y')
+            now = time.strftime('%H:%M:%S %p %d/%m/%Y')
             self.value = now
             self.update()
             await asyncio.sleep(1)

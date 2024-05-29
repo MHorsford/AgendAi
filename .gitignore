@@ -1,6 +1,7 @@
 .venv
 .idea
 __pycache__/
+app/gui/test.py
 savetask.csv
 dependency.txt
 anotação.txt

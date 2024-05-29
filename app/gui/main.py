@@ -2,10 +2,10 @@ import os.path
 
 import flet as ft
 from DateTime import DateTime
-from os import path
 from Clock import Clock
 from RadioButton import RadioButton
 from Inputs import Inputs
+from ListTask import ListTask
 
 
 class GUI:
@@ -16,7 +16,6 @@ class GUI:
         page.window_min_width = 360
         page.window_min_height = 290
         page.adaptive = True
-        print(f'Tema: {page.theme_mode.value}')
 
         page.fonts = {
             'Alarm Clock': os.path.join('../assets/fonts/alarm clock/alarm_clock.ttf'),
@@ -51,10 +50,12 @@ class GUI:
         self.home_ = self.home()
         self.add_task_ = self.add_task()
         self.about_ = self.about()
+        self.list_task_ = self.list_task()
         page.add(
             self.home_,
             self.add_task_,
             self.about_,
+            self.list_task_,
         )
         self.page.update()
 
@@ -64,6 +65,8 @@ class GUI:
         self.home_.disabled = False if index == 0 else True
         self.add_task_.visible = True if index == 1 else False
         self.add_task_.disabled = False if index == 1 else True
+        self.list_task_.visible = True if index == 2 else False
+        self.list_task_.disabled = False if index == 2 else True
         self.about_.visible = True if index == 3 else False
         self.about_.disabled = False if index == 3 else True
         self.page.update()
@@ -72,14 +75,17 @@ class GUI:
         return ft.ResponsiveRow(
             [
                 ft.Container(
-                    content=ft.Text(
-                        "Home",
-                        size=35,
-                        weight=ft.FontWeight.BOLD,
+                    content=ft.Image(
+                        src=os.path.join('../assets/img/logohome.png'),
+                        width=30,
+                        height=90,
                     ),
+                    bgcolor='red',
                     padding=ft.padding.only(top=10),
+                    col={"xs": 12, "sm": 12, "md": 12, "lg": 12, "xl": 12}
                 ),
                 ft.Container(
+                    adaptive=True,
                     content=Clock(font_family="Alarm Clock"),
                     padding=ft.padding.only(10, 10, 10, 10),
                     border=ft.border.all(2, '#FFFFFF'),
@@ -91,10 +97,10 @@ class GUI:
                         color='#306998',
                     ),
                     bgcolor='#306998',
-                    alignment=ft.alignment.center,
-                    col={"xs": 14, "sm": 10, "md": 8, "lg": 7, "xl": 5}
+                    col={"xs": 10, "sm": 9, "md": 7.5, "lg": 6.5, "xl": 5.5}
                 ),
             ],
+            alignment=ft.MainAxisAlignment.CENTER
         )
 
     def add_task(self):
@@ -123,6 +129,16 @@ class GUI:
                 ft.Container(
                     content=RadioButton(),
                     margin=ft.margin.only(10, 50, 0, 0),
+                )
+            ],
+            visible=False
+        )
+
+    def list_task(self):
+        return ft.Column(
+            [
+                ft.Container(
+                    content=ListTask(),
                 )
             ],
             visible=False
