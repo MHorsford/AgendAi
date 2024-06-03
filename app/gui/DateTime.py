@@ -92,8 +92,11 @@ class DateTime(ft.UserControl):
         if time_value is not None:
             time_value = time_value.strftime("%H:%M:%S")
         if date_value is not None:
-            date_value = date_value.strftime("%d/%m/%Y")
+            date_value = date_value.strftime("%Y-%m-%d")
         self.field.value = f"{date_value} {time_value}"
         self.update()
+
+    def get_value(self):
+        return self.field.value
 
 

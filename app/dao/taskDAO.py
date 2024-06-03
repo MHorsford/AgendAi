@@ -10,6 +10,8 @@ class TaskDAO:
 
         self.tasks_dao = []
 
+        self.create_table()
+
     def create_table(self):
         try:
             if not os.path.exists('../data/Tasks.db'):
@@ -47,7 +49,7 @@ class TaskDAO:
         finally:
             pass
 
-    def set_task(self, name, description, dateTime, dalyAlarm=False):
+    def set_task(self, name, description, dateTime, dalyAlarm=0):
         try:
             if not self.connect:
                 self.connect = sqlite3.connect('../data/Tasks.db')
@@ -55,6 +57,7 @@ class TaskDAO:
             self.cursor.execute('INSERT INTO Tasks (Name, Description, DateTime, DalyAlarm) VALUES (?, ?, ?, ?)',
                                 (name, description, dateTime, dalyAlarm))
             self.connect.commit()
+            self.load_task()  #
         except sqlite3.Error as e:
             print(f'Erro ao inserir a tarefa: {e}!!!')
         finally:
@@ -74,6 +77,7 @@ class TaskDAO:
             sql = f'{command_sql_1}{command_sql_2}{command_sql_3}'
             self.cursor.execute(sql, values)
             self.connect.commit()
+            self.load_task()  #
         except sqlite3.Error as e:
             print(f'Ocorreu um erro ao modificar a tarefa: {e}!!!')
         finally:
@@ -89,7 +93,7 @@ class TaskDAO:
 
             self.cursor.execute('DELETE FROM Tasks WHERE ID = ?', (ID,))
             self.connect.commit()
-
+            self.load_task()  #
         except sqlite3.Error as e:
             print(f'Erro ao excluir a tarefa: {e}!!!')
         finally:
@@ -121,6 +125,3 @@ class TaskDAO:
         finally:
             pass
 
-
-if __name__ == '__main__':
-    pass

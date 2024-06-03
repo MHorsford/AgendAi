@@ -6,8 +6,8 @@ class ListTask(ft.UserControl):
 
     def __init__(self):
         super().__init__()
-
-        self.tasks = TaskDAO().get_task()
+        self.dao = TaskDAO()
+        self.tasks = self.dao.get_task()
         self.colors = [ft.colors.BLUE, ft.colors.RED]
         self.search = ft.TextField(label="Pesquisar", on_change=self.search_task)
         self.datanotfound = ft.Text("Nenhuma Tarefa Encontrada")
@@ -34,7 +34,13 @@ class ListTask(ft.UserControl):
                 ft.Container(
                     content=self.search,
                     padding=ft.padding.all(10),
-                    alignment=ft.alignment.center
+                    alignment=ft.alignment.center,
+                ),
+                ft.Container(
+                    content=self.datanotfound,
+                    padding=ft.padding.all(10),
+                    alignment=ft.alignment.center,
+                    visible=False
                 ),
                 ft.Container(
                     content=self.data_table,
@@ -100,6 +106,3 @@ class ListTask(ft.UserControl):
                 )
 
             self.update()
-
-
-        pass

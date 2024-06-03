@@ -60,4 +60,7 @@ class Inputs(ft.Row):
         icon = ft.icons.DRIVE_FILE_RENAME_OUTLINE_SHARP
         return icon
 
+    def get_value(self):
+        return self.text_field.value
+
 

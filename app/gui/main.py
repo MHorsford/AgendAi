@@ -6,6 +6,8 @@ from Clock import Clock
 from RadioButton import RadioButton
 from Inputs import Inputs
 from ListTask import ListTask
+from app.dao.taskDAO import TaskDAO
+from Notification import Notification
 
 
 class GUI:
@@ -16,6 +18,7 @@ class GUI:
         page.window_min_width = 360
         page.window_min_height = 290
         page.adaptive = True
+        page.scroll = ft.ScrollMode.AUTO
 
         page.fonts = {
             'Alarm Clock': os.path.join('../assets/fonts/alarm clock/alarm_clock.ttf'),
@@ -47,15 +50,25 @@ class GUI:
             ],
         )
         self.page = page
+        self.name_input = Inputs("Nome")
+        self.description_input = Inputs("Descrição")
+        self.date_time_input = DateTime()
+        self.radio_button_input = RadioButton()
+
         self.home_ = self.home()
         self.add_task_ = self.add_task()
         self.about_ = self.about()
         self.list_task_ = self.list_task()
+
+        self.notification = Notification()
+        page.dialog = self.notification.notification
+
         page.add(
             self.home_,
             self.add_task_,
             self.about_,
             self.list_task_,
+            self.notification,
         )
         self.page.update()
 
@@ -115,21 +128,28 @@ class GUI:
                     alignment=ft.alignment.top_center,
                 ),
                 ft.Container(
-                    content=Inputs("Adicionar Tarefa"),
+                    content=self.name_input,
                     margin=ft.margin.only(10, 20, 0, 0),
                 ),
                 ft.Container(
-                    content=Inputs("Descrição"),
+                    content=self.description_input,
                     margin=ft.margin.only(10, 40, 0, 0),
                 ),
                 ft.Container(
-                    content=DateTime(),
+                    content=self.date_time_input,
                     margin=ft.margin.only(10, 40, 0, 0),
                 ),
                 ft.Container(
-                    content=RadioButton(),
+                    content=self.radio_button_input,
                     margin=ft.margin.only(10, 50, 0, 0),
-                )
+                ),
+                ft.Container(
+                    content=ft.ElevatedButton(
+                        "Adicionar Tarefa",
+                        on_click=self.add_task_event,
+                    ),
+                    margin=ft.margin.only(10, 20, 0, 10),
+                ),
             ],
             visible=False
         )
@@ -197,6 +217,40 @@ class GUI:
 
     def system(self):
         pass
+
+    def add_task_event(self, e):
+        dao = TaskDAO()
+        task_exists = False
+        for task in dao.get_task():
+            if (task['Name'] == self.name_input.get_value() and
+                    task['DateTime'] == self.date_time_input.get_value() and
+                    bool(task['DalyAlarm']) == self.radio_button_input.get_value()):
+                task_exists = True
+                break
+
+        if not task_exists:
+            dao.set_task(
+                self.name_input.get_value(),
+                self.description_input.get_value(),
+                self.date_time_input.get_value(),
+                self.radio_button_input.get_value()
+            )
+            self.clear_event()
+            self.notification.update_value('Sistema', 'Tarefa adicionada com sucesso!')
+            self.notification.open_notification(e)
+            self.page.update()
+        else:
+            self.clear_event()
+            self.notification.update_value('Sistema', 'Tarefa ja existe!')
+            self.notification.open_notification(e)
+            self.page.update()
+        dao.load_task()
+
+    def clear_event(self):
+        self.name_input.value = ""
+        self.description_input.value = ""
+        self.date_time_input.value = ""
+        self.radio_button_input.value = ""
 
 
 ft.app(target=GUI)
