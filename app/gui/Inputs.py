@@ -7,13 +7,10 @@ class Inputs(ft.Row):
         self.expand = True
         self.icon_name = kwargs.get('icon', None)
         self.text_field = ft.TextField(
-            label=text_input,
-            disabled=True,
-            multiline=True,
+            label=text_input, disabled=True, multiline=True,
             border_radius=ft.border_radius.all(10),
-            adaptive=True,
-            expand=True,
-            icon=self.icon_selector(),
+            adaptive=True, expand=True,
+            icon=self.icon_selector(), border_color='#316FA4',
             max_length=kwargs.get('max_length', None),
         )
         self.edit_button = ft.IconButton(

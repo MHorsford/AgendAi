@@ -8,7 +8,7 @@ class Clock(ft.Text):
         super().__init__()
         self.running = False
         self.font_family = kwargs.get('font_family', None)
-        self.color = '#FFD43B'
+        self.color = '#F0CA33'
         self.size = 40
         self.text_align = ft.TextAlign.CENTER
 

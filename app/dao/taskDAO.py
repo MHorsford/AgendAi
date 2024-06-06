@@ -124,4 +124,3 @@ class TaskDAO:
             print(f'Erro ao buscar as tarefas: {e}!!!')
         finally:
             pass
-

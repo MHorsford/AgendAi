@@ -13,10 +13,11 @@ class DateTime(ft.UserControl):
             confirm_text="Confirmar",
             cancel_text="Cancelar",
             on_change=self.change_date_time,
+            value=datetime.now(),
         )
         self.date_button = ft.ElevatedButton(
             text="Data", icon=ft.icons.CALENDAR_MONTH, on_click=self.on_date_button_click,
-            bgcolor=ft.colors.BLUE, icon_color=ft.colors.WHITE, color=ft.colors.WHITE,
+                bgcolor='#316FA4', icon_color='#FFFFFF', color='#FFFFFF',
             width=200, height=40,
             adaptive=True,
             expand=True,
@@ -27,10 +28,11 @@ class DateTime(ft.UserControl):
             confirm_text="Confirmar",
             cancel_text="Cancelar",
             on_change=self.change_date_time,
+            value=datetime.now().time(),
         )
         self.time_button = ft.ElevatedButton(
             text="Hora", icon=ft.icons.ACCESS_TIME, on_click=self.on_time_button_click,
-            bgcolor=ft.colors.BLUE, icon_color=ft.colors.WHITE, color=ft.colors.WHITE,
+            bgcolor='#316FA4', icon_color='#FFFFFF', color='#FFFFFF',
             width=200, height=40,
             adaptive=True,
             expand=True,
@@ -42,8 +44,9 @@ class DateTime(ft.UserControl):
             label="Data & Hora", disabled=True,
             border_radius=ft.border_radius.all(10),
             icon=ft.icons.CALENDAR_MONTH, border=ft.InputBorder.OUTLINE,
-            width=None, height=40,
-            adaptive=True,
+            width=None, height=40, adaptive=True,
+            value=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            border_color='#316FA4',
         )
 
         self.responsive = ft.ResponsiveRow(
@@ -98,5 +101,4 @@ class DateTime(ft.UserControl):
 
     def get_value(self):
         return self.field.value
-
 
