@@ -35,8 +35,8 @@ class RadioButton(ft.UserControl):
         return ft.Column(
             [
                 self.radio,
-                self.save_button,
-                self.edit_button
+                #self.save_button,
+                #self.edit_button
             ]
         )
 

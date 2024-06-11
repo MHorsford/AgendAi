@@ -1,4 +1,4 @@
-from app.src.manager import Manager
+from app.src.ThreadManager import Manager
 from app.src.agendai import AgendAi
 import os
 

@@ -11,7 +11,7 @@ class Notification(ft.UserControl):
             actions=[
                 ft.TextButton("Ok", on_click=self.close_notification),
             ],
-            on_dismiss=lambda e: print("Modal dialog dismissed!")
+            on_dismiss=lambda e: print('Submitted!'),
         )
 
     def build(self):

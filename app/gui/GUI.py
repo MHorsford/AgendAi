@@ -1,5 +1,5 @@
 import os.path
-
+from datetime import datetime
 import flet as ft
 from DateTime import DateTime
 from Clock import Clock
@@ -8,6 +8,8 @@ from Inputs import Inputs
 from ListTask import ListTask
 from app.dao.taskDAO import TaskDAO
 from Notification import Notification
+from app.src.agendai import AgendAi
+import threading as th
 
 
 class GUI:
@@ -18,7 +20,6 @@ class GUI:
         page.window_min_width = 360
         page.window_min_height = 290
         page.adaptive = True
-
         page.scroll = ft.ScrollMode.AUTO
         page.padding = 0
 
@@ -58,8 +59,8 @@ class GUI:
             ],
         )
         self.page = page
-        self.name_input = Inputs("Nome")
-        self.description_input = Inputs("Descrição")
+        self.name_input = Inputs("Nome", icon="DRIVE_FILE_RENAME_OUTLINE_ROUNDED")
+        self.description_input = Inputs("Descrição", icon="DESCRIPTION")
         self.date_time_input = DateTime()
         self.radio_button_input = RadioButton()
 
@@ -67,8 +68,11 @@ class GUI:
         self.add_task_ = self.add_task()
         self.about_ = self.about()
         self.list_task_ = self.list_task()
-
         self.notification = Notification()
+        self.ag = AgendAi()
+
+        self.mutex = th.Lock()
+        self.thread: th.Thread
         page.dialog = self.notification.notification
 
         page.add(
@@ -121,6 +125,21 @@ class GUI:
                     bgcolor='#245076',
                     col={"xs": 10, "sm": 9, "md": 7.5, "lg": 6.5, "xl": 5.5}
                 ),
+                ft.Container(
+                    content=ft.Tooltip(
+                        message="Inicie e encerre o agendador clicando aqui",
+                        content=ft.Switch(
+                            adaptive=True,
+                            label="Iniciar Programa",
+                            value=False,
+                            active_color='#245076',
+                            on_change=lambda e: self.toggle_scheduler(e),
+                        ),
+                    ),
+                    margin=ft.margin.only(self.page.window_min_width, 10, self.page.window_min_width, 0),
+                    alignment=ft.alignment.center,
+                    adaptive=True
+                ),
             ],
             alignment=ft.MainAxisAlignment.CENTER,
             expand=True,
@@ -138,33 +157,34 @@ class GUI:
                         color='#FFFFFF',
                     ),
                     alignment=ft.alignment.top_center,
-                    margin=ft.margin.only(10, 0, 10, 0),
+                    margin=ft.margin.only(10, 10, 10, 0),
                 ),
                 ft.Container(
                     content=self.name_input,
-                    margin=ft.margin.only(10, 20, 10, 0),
+                    margin=ft.margin.only(10, 30, 10, 0),
                 ),
                 ft.Container(
                     content=self.description_input,
-                    margin=ft.margin.only(10, 20, 10, 0),
-                ),
-                ft.Container(
-                    content=self.date_time_input,
                     margin=ft.margin.only(10, 40, 10, 0),
                 ),
                 ft.Container(
+                    content=self.date_time_input,
+                    margin=ft.margin.only(10, 35, 10, 0),
+                ),
+                ft.Container(
                     content=self.radio_button_input,
-                    margin=ft.margin.only(10, 50, 10, 0),
+                    margin=ft.margin.only(10, 35, 10, 0),
                 ),
                 ft.Container(
                     content=ft.ElevatedButton(
                         "Adicionar Tarefa",
                         on_click=self.add_task_event,
-                        height=40,
-                        bgcolor='#316FA4',
-                        color='#FFFFFF',
+                        height=40, width=200,
+                        bgcolor='#316FA4', color='#FFFFFF',
+
                     ),
-                    margin=ft.margin.only(0, 0, 0, 0),
+                    margin=ft.margin.only(20, 35, 20, 0),
+                    alignment=ft.alignment.center
                 ),
             ],
             visible=False
@@ -252,18 +272,19 @@ class GUI:
                     bool(task['DalyAlarm']) == self.radio_button_input.get_value()):
                 task_exists = True
                 break
-
         if not task_exists:
             dao.set_task(
                 self.name_input.get_value(),
                 self.description_input.get_value(),
                 self.date_time_input.get_value(),
-                self.radio_button_input.get_value()
+                self.radio_button_input.get_value(),
             )
             self.clear_event()
             self.notification.update_value('Sistema', 'Tarefa adicionada com sucesso!')
             self.notification.open_notification(e)
             self.page.update()
+            self.ag.reloading()
+
         else:
             self.clear_event()
             self.notification.update_value('Sistema', 'Tarefa ja existe!')
@@ -272,10 +293,31 @@ class GUI:
         dao.load_task()
 
     def clear_event(self):
-        self.name_input.value = ""
-        self.description_input.value = ""
-        self.date_time_input.value = ""
-        self.radio_button_input.value = ""
+        self.name_input.value = None
+        self.description_input.value = None
+        self.date_time_input.value = None
+        self.radio_button_input.value = None
+
+    def start_scheduler(self, e):
+        self.thread = th.Thread(name='AgendAi', target=self.ag.verification_task, daemon=True)
+        if not self.thread.is_alive():
+            self.thread.start()
+            print(self.thread.is_alive())
+
+    def toggle_scheduler(self, e):
+        if e.control.value:
+            print('Scheduler is running...', e.control.value)
+            self.start_scheduler(e)
+        elif e.control.value is False:
+            print('Scheduler is stopped...', e.control.value)
+            self.stop_scheduler(e)
+
+    def stop_scheduler(self, e):
+        self.ag.stop()
+        if self.thread.is_alive():
+            self.ag.running = False
+            self.thread.join()
+            print(self.thread.is_alive())
 
 
 ft.app(target=GUI)

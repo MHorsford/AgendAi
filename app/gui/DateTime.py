@@ -100,5 +100,6 @@ class DateTime(ft.UserControl):
         self.update()
 
     def get_value(self):
+        #self.field.value = datetime.strptime(self.field.value, "%Y-%m-%d %H:%M:%S")
         return self.field.value
 
