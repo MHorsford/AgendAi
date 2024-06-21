@@ -2,8 +2,9 @@ import flet as ft
 
 
 class Notification(ft.UserControl):
-    def __init__(self, title: str = '', content: str = ''):
+    def __init__(self, title: str = '', content: str = '', page=None):
         super().__init__()
+        self.page = page
         self.notification = ft.AlertDialog(
             modal=True,
             title=ft.Text(title),
@@ -18,6 +19,7 @@ class Notification(ft.UserControl):
         return self.notification
 
     def open_notification(self, e):
+        self.page.dialog = self.notification
         self.notification.open = True
         self.update()
 

@@ -1,6 +1,6 @@
 import os.path
-from datetime import datetime
 import flet as ft
+import threading as th
 from DateTime import DateTime
 from Clock import Clock
 from RadioButton import RadioButton
@@ -9,8 +9,8 @@ from ListTask import ListTask
 from app.dao.taskDAO import TaskDAO
 from Notification import Notification
 from app.src.agendai import AgendAi
-import threading as th
-
+from app.gui.Modal import Modal
+from app.gui.Route import Route
 
 class GUI:
     def __init__(self, page: ft.Page):
@@ -68,12 +68,13 @@ class GUI:
         self.add_task_ = self.add_task()
         self.about_ = self.about()
         self.list_task_ = self.list_task()
-        self.notification = Notification()
+        self.notification = Notification('', '', page)
         self.ag = AgendAi()
+        self.modal = Modal(page)
+        self.route = Route(page)
 
         self.mutex = th.Lock()
         self.thread: th.Thread
-        page.dialog = self.notification.notification
 
         page.add(
             self.home_,
@@ -81,6 +82,7 @@ class GUI:
             self.about_,
             self.list_task_,
             self.notification,
+            self.page.navigation_bar,
         )
         self.page.update()
 
@@ -181,7 +183,6 @@ class GUI:
                         on_click=self.add_task_event,
                         height=40, width=200,
                         bgcolor='#316FA4', color='#FFFFFF',
-
                     ),
                     margin=ft.margin.only(20, 35, 20, 0),
                     alignment=ft.alignment.center
@@ -189,6 +190,7 @@ class GUI:
             ],
             visible=False
         )
+
 
     def list_task(self):
         return ft.Column(
@@ -203,8 +205,8 @@ class GUI:
                     margin=ft.margin.only(0, 20, 0, 0)
                 ),
                 ft.Container(
-                    content=ListTask(),
-                )
+                    content=ListTask(self.page),
+                ),
             ],
             visible=False
         )
@@ -284,7 +286,6 @@ class GUI:
             self.notification.open_notification(e)
             self.page.update()
             self.ag.reloading()
-
         else:
             self.clear_event()
             self.notification.update_value('Sistema', 'Tarefa ja existe!')

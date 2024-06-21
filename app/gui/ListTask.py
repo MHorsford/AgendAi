@@ -1,11 +1,13 @@
 import flet as ft
 from app.dao.taskDAO import TaskDAO
-
+from app.gui.Modal import Modal
+from app.gui.Route import Route
 
 class ListTask(ft.UserControl):
 
-    def __init__(self):
+    def __init__(self, page):
         super().__init__()
+        self.page = page
         self.dao = TaskDAO()
         self.tasks = self.dao.get_task()
         self.adaptive = True
@@ -23,7 +25,6 @@ class ListTask(ft.UserControl):
             columns=[
                 ft.DataColumn(ft.Text("ID")),
                 ft.DataColumn(ft.Text("Nome")),
-                #ft.DataColumn(ft.Text("Descrição")),
                 ft.DataColumn(ft.Text("Data e Hora")),
                 ft.DataColumn(ft.Text("Alarme Diário?")),
                 ft.DataColumn(ft.Text("Ações")),
@@ -39,6 +40,25 @@ class ListTask(ft.UserControl):
             heading_row_color='#245076',
             data_text_style=ft.TextStyle(color=ft.colors.BLACK),
         )
+        self.action_sheet = ft.CupertinoActionSheet(
+            title=ft.Text("Ações"),
+            message=ft.Text("Escolha uma ação"),
+            cancel=ft.CupertinoActionSheetAction(
+                content=ft.Text("Cancelar"),
+                on_click=lambda e: self.page.close_bottom_sheet()
+            ),
+            actions=[
+                ft.CupertinoActionSheetAction(
+                    content=ft.Text("Editar"),
+                    on_click=Route(self.page)
+                ),
+                ft.CupertinoActionSheetAction(
+                    content=ft.Text("Excluir", color="red"),
+                    on_click=self.delete_task
+                ),
+            ]
+        )
+
         self.load_task()
 
     def build(self):
@@ -73,23 +93,34 @@ class ListTask(ft.UserControl):
             self.data_table.rows.append(
                 ft.DataRow(
                     cells=[
-                        ft.DataCell(ft.Text(str(task['ID']))),
-                        ft.DataCell(ft.Text(task['Name'])),
-                        #ft.DataCell(ft.Text(task['Description'])),
-                        ft.DataCell(ft.Text(task['DateTime'])),
-                        ft.DataCell(ft.Text("Sim" if task['DalyAlarm'] else "Não")),
-                        ft.DataCell(ft.Text("Editar/Deletar"))
+                        ft.DataCell(content=ft.Text(str(task['ID']))),
+                        ft.DataCell(content=ft.Text(task['Name'])),
+                        ft.DataCell(content=ft.Text(task['DateTime'])),
+                        ft.DataCell(content=ft.Text("Sim" if task['DalyAlarm'] else "Não")),
+                        ft.DataCell(
+                            content=ft.IconButton(
+                                icon=ft.icons.SETTINGS,
+                                tooltip="Configurações",
+                                icon_color=ft.colors.BLACK,
+                                on_click=self.show_action_sheet,
+                                data=task['ID'],
+                            )
+                        )
                     ],
                     color=self.colors[row_index % len(self.colors)],
                 )
             )
             row_index += 1
+            self.update()
 
     def reload_task(self):
         new_tasks = self.dao.get_task()
         if len(new_tasks) > len(self.tasks) or len(new_tasks) < len(self.tasks):
+            self.tasks.clear()
+            self.data_table.rows.clear()
             self.tasks = new_tasks
             self.load_task()
+            self.update()
 
     def search_task(self, e):
         self.reload_task()
@@ -104,12 +135,19 @@ class ListTask(ft.UserControl):
                     self.data_table.rows.append(
                         ft.DataRow(
                             cells=[
-                                ft.DataCell(ft.Text(str(task['ID']))),
-                                ft.DataCell(ft.Text(task['Name'])),
-                                #ft.DataCell(ft.Text(task['Description'])),
-                                ft.DataCell(ft.Text(task['DateTime'])),
-                                ft.DataCell(ft.Text("Sim" if task['DalyAlarm'] else "Não")),
-                                ft.DataCell(ft.Text("Editar/Deletar"))
+                                ft.DataCell(content=ft.Text(str(task['ID']))),
+                                ft.DataCell(content=ft.Text(task['Name'])),
+                                ft.DataCell(content=ft.Text(task['DateTime'])),
+                                ft.DataCell(content=ft.Text("Sim" if task['DalyAlarm'] else "Não")),
+                                ft.DataCell(
+                                    content=ft.IconButton(
+                                        icon=ft.icons.SETTINGS,
+                                        tooltip="Configurações",
+                                        icon_color=ft.colors.BLACK,
+                                        on_click=self.show_action_sheet,
+                                        data=task['ID'],
+                                    )
+                                )
                             ],
                             color=self.colors[row_index % len(self.colors)]
                         )
@@ -126,16 +164,46 @@ class ListTask(ft.UserControl):
                 self.data_table.rows.append(
                     ft.DataRow(
                         cells=[
-                            ft.DataCell(ft.Text(str(task['ID']))),
-                            ft.DataCell(ft.Text(task['Name'])),
-                            #ft.DataCell(ft.Text(task['Description'])),
-                            ft.DataCell(ft.Text(task['DateTime'])),
-                            ft.DataCell(ft.Text("Sim" if task['DalyAlarm'] else "Não")),
-                            ft.DataCell(ft.Text("Editar/Deletar"))
+                            ft.DataCell(content=ft.Text(str(task['ID']))),
+                            ft.DataCell(content=ft.Text(task['Name'])),
+                            ft.DataCell(content=ft.Text(task['DateTime'])),
+                            ft.DataCell(content=ft.Text("Sim" if task['DalyAlarm'] else "Não")),
+                            ft.DataCell(
+                                content=ft.IconButton(
+                                    icon=ft.icons.SETTINGS,
+                                    tooltip="Configurações",
+                                    icon_color=ft.colors.BLACK,
+                                    on_click=self.show_action_sheet,
+                                    data=task['ID'],
+                                )
+                            )
                         ],
                         color=self.colors[row_index % len(self.colors)]
                     )
                 )
                 row_index += 1
-
             self.update()
+        self.update()
+
+    def show_action_sheet(self, e: ft.ControlEvent):
+        self.tasks_id = e.control.data
+        self.page.show_bottom_sheet(
+            ft.CupertinoBottomSheet(self.action_sheet)
+        )
+
+    def edit_task(self, e):
+        mdl = Modal(self.page)
+        for task in self.tasks:
+            if task['ID'] == self.tasks_id:
+                return mdl.content(
+                    task['ID'],
+                    task['Name'],
+                    task['DateTime'],
+                    task['DalyAlarm']
+                )
+        self.update()
+
+    def delete_task(self, e):
+        self.dao.del_task(self.tasks_id)
+        self.reload_task()
+        self.update()

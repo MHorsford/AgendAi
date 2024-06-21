@@ -1,7 +1,8 @@
 .venv
 .idea
 __pycache__/
-app/gui/test.py
+app/gui/DialogAction.py
 savetask.csv
 dependency.txt
 anotação.txt
+app/gui/Route.py
