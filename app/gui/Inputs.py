@@ -60,4 +60,7 @@ class Inputs(ft.Row):
     def get_value(self):
         return self.text_field.value
 
+    def set_value(self, value):
+        self.text_field.value = value
+
 

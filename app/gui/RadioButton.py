@@ -61,3 +61,7 @@ class RadioButton(ft.UserControl):
 
     def get_value(self):
         return self.radio.value
+
+    def set_value(self, value):
+        self.radio.value = 1 if value == "True" else 0
+

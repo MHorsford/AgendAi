@@ -1,7 +1,7 @@
 import flet as ft
 from app.dao.taskDAO import TaskDAO
 from app.gui.Modal import Modal
-from app.gui.Route import Route
+
 
 class ListTask(ft.UserControl):
 
@@ -10,6 +10,7 @@ class ListTask(ft.UserControl):
         self.page = page
         self.dao = TaskDAO()
         self.tasks = self.dao.get_task()
+        self.modal = Modal(page, self.reload_task)
         self.adaptive = True
         self.colors = ['#316FA4', '#F0CA33']
         self.search = ft.TextField(
@@ -40,6 +41,7 @@ class ListTask(ft.UserControl):
             heading_row_color='#245076',
             data_text_style=ft.TextStyle(color=ft.colors.BLACK),
         )
+
         self.action_sheet = ft.CupertinoActionSheet(
             title=ft.Text("Ações"),
             message=ft.Text("Escolha uma ação"),
@@ -50,7 +52,7 @@ class ListTask(ft.UserControl):
             actions=[
                 ft.CupertinoActionSheetAction(
                     content=ft.Text("Editar"),
-                    on_click=Route(self.page)
+                    on_click=self.modal.open_modal
                 ),
                 ft.CupertinoActionSheetAction(
                     content=ft.Text("Excluir", color="red"),
@@ -58,8 +60,8 @@ class ListTask(ft.UserControl):
                 ),
             ]
         )
-
         self.load_task()
+        self.update()
 
     def build(self):
         return ft.Column(
@@ -118,6 +120,10 @@ class ListTask(ft.UserControl):
         if len(new_tasks) > len(self.tasks) or len(new_tasks) < len(self.tasks):
             self.tasks.clear()
             self.data_table.rows.clear()
+            self.tasks = new_tasks
+            self.load_task()
+            self.update()
+        if new_tasks != self.tasks:
             self.tasks = new_tasks
             self.load_task()
             self.update()
@@ -187,21 +193,18 @@ class ListTask(ft.UserControl):
 
     def show_action_sheet(self, e: ft.ControlEvent):
         self.tasks_id = e.control.data
+        self.selected_task()
         self.page.show_bottom_sheet(
             ft.CupertinoBottomSheet(self.action_sheet)
         )
 
-    def edit_task(self, e):
-        mdl = Modal(self.page)
+    def selected_task(self):
         for task in self.tasks:
             if task['ID'] == self.tasks_id:
-                return mdl.content(
-                    task['ID'],
-                    task['Name'],
-                    task['DateTime'],
-                    task['DalyAlarm']
-                )
-        self.update()
+                self.modal.task = task
+                self.modal.update()
+                self.update()
+                break
 
     def delete_task(self, e):
         self.dao.del_task(self.tasks_id)

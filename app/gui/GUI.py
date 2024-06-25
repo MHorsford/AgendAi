@@ -10,7 +10,7 @@ from app.dao.taskDAO import TaskDAO
 from Notification import Notification
 from app.src.agendai import AgendAi
 from app.gui.Modal import Modal
-from app.gui.Route import Route
+
 
 class GUI:
     def __init__(self, page: ft.Page):
@@ -68,10 +68,10 @@ class GUI:
         self.add_task_ = self.add_task()
         self.about_ = self.about()
         self.list_task_ = self.list_task()
+        self.list = ListTask(page)
         self.notification = Notification('', '', page)
         self.ag = AgendAi()
-        self.modal = Modal(page)
-        self.route = Route(page)
+        self.modal = Modal(page, self.list.reload_task)
 
         self.mutex = th.Lock()
         self.thread: th.Thread
@@ -284,6 +284,7 @@ class GUI:
             self.clear_event()
             self.notification.update_value('Sistema', 'Tarefa adicionada com sucesso!')
             self.notification.open_notification(e)
+            self.list.reload_task()
             self.page.update()
             self.ag.reloading()
         else:
@@ -292,12 +293,14 @@ class GUI:
             self.notification.open_notification(e)
             self.page.update()
         dao.load_task()
+        self.page.update()
 
     def clear_event(self):
         self.name_input.value = None
         self.description_input.value = None
         self.date_time_input.value = None
         self.radio_button_input.value = None
+        self.page.update()
 
     def start_scheduler(self, e):
         self.thread = th.Thread(name='AgendAi', target=self.ag.verification_task, daemon=True)
