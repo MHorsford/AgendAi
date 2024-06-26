@@ -68,10 +68,10 @@ class GUI:
         self.add_task_ = self.add_task()
         self.about_ = self.about()
         self.list_task_ = self.list_task()
-        self.list = ListTask(page)
-        self.notification = Notification('', '', page)
+        self.list = ListTask(self.page)
+        self.notification = Notification(self.page)
         self.ag = AgendAi()
-        self.modal = Modal(page, self.list.reload_task)
+        self.modal = Modal(self.page, self.list.reload_task)
 
         self.mutex = th.Lock()
         self.thread: th.Thread
@@ -81,7 +81,6 @@ class GUI:
             self.add_task_,
             self.about_,
             self.list_task_,
-            self.notification,
             self.page.navigation_bar,
         )
         self.page.update()
@@ -191,7 +190,6 @@ class GUI:
             visible=False
         )
 
-
     def list_task(self):
         return ft.Column(
             [
@@ -282,18 +280,15 @@ class GUI:
                 self.radio_button_input.get_value(),
             )
             self.clear_event()
-            self.notification.update_value('Sistema', 'Tarefa adicionada com sucesso!')
-            self.notification.open_notification(e)
+            self.notification.open_notification(e, 'Sistema', 'Tarefa adicionada com sucesso!')
             self.list.reload_task()
             self.page.update()
             self.ag.reloading()
         else:
             self.clear_event()
-            self.notification.update_value('Sistema', 'Tarefa ja existe!')
-            self.notification.open_notification(e)
+            self.notification.open_notification(e, 'Sistema', 'Tarefa ja existe!')
             self.page.update()
         dao.load_task()
-        self.page.update()
 
     def clear_event(self):
         self.name_input.value = None

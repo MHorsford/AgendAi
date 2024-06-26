@@ -91,6 +91,7 @@ class ListTask(ft.UserControl):
 
     def load_task(self):
         row_index = 1
+        self.data_table.rows.clear()
         for task in self.tasks:
             self.data_table.rows.append(
                 ft.DataRow(
@@ -122,11 +123,11 @@ class ListTask(ft.UserControl):
             self.data_table.rows.clear()
             self.tasks = new_tasks
             self.load_task()
-            self.update()
         if new_tasks != self.tasks:
+            self.tasks.clear()
             self.tasks = new_tasks
             self.load_task()
-            self.update()
+        self.update()
 
     def search_task(self, e):
         self.reload_task()
@@ -160,9 +161,11 @@ class ListTask(ft.UserControl):
                     )
                     row_index += 1
                     self.update()
+                    self.page.update()
             else:
                 self.datanotfound.visible = True
                 self.update()
+                self.page.update()
         else:
             self.datanotfound.visible = False
             row_index = 1
@@ -189,6 +192,7 @@ class ListTask(ft.UserControl):
                 )
                 row_index += 1
             self.update()
+            self.page.update()
         self.update()
 
     def show_action_sheet(self, e: ft.ControlEvent):
@@ -197,13 +201,12 @@ class ListTask(ft.UserControl):
         self.page.show_bottom_sheet(
             ft.CupertinoBottomSheet(self.action_sheet)
         )
+        self.update()
 
     def selected_task(self):
         for task in self.tasks:
             if task['ID'] == self.tasks_id:
                 self.modal.task = task
-                self.modal.update()
-                self.update()
                 break
 
     def delete_task(self, e):

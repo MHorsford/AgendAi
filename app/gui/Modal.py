@@ -56,7 +56,7 @@ class Modal(ft.UserControl):
                 ft.TextButton("Salvar", on_click=self.save_task),
                 ft.TextButton("Cancelar", on_click=self.close_modal),
             ],
-            on_dismiss=lambda e: None,
+            on_dismiss=lambda e: print("Modal dismissed!"),
         )
         self.update()
 
@@ -74,7 +74,7 @@ class Modal(ft.UserControl):
         self.set_task()
         self.page.dialog = self.modal
         self.modal.open = True
-        self.update()
+        self.page.update()
 
     def save_task(self, e):
         self.dao.modify_task(
@@ -86,8 +86,8 @@ class Modal(ft.UserControl):
         )
         self.modal.open = False
         self.on_task_modified()
-        self.update()
+        self.page.update()
 
     def close_modal(self, e):
         self.modal.open = False
-        self.update()
+        self.page.update()
